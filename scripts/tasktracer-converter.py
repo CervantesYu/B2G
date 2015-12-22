@@ -10,7 +10,6 @@ from os.path import isfile
 from os import environ
 import subprocess
 
-
 tasks = {}
 sorted_tasks = {}
 unrun_tasks = set([])
@@ -198,7 +197,7 @@ def parse_log(log, process_id):
 
     set_task_info(info, process_id)
 
-def output_json(output_name, begin_time, end_time):
+def output_json(output_name, begin_time, end_time, process_start_min):
   """
     Write tasks out in JSON format.
 
@@ -207,8 +206,8 @@ def output_json(output_name, begin_time, end_time):
     end_time: the max of all timestamps.
   """
   output_file = open(output_name, 'w')
-  output_file.write('{\"begin\": %d, \"end\": %d, \"processes\": '
-                    % (begin_time, end_time))
+  output_file.write('{\"begin\": %d, \"end\": %d \"startTime\": %d, \"processes\": '
+                    % (begin_time, end_time, process_start_min))
   output_file.write(json.dumps(processes.values(), default=lambda o:o.pretty_dict(),
                     indent=4))
   output_file.write(', \"threads\": ')
@@ -434,8 +433,7 @@ def main():
   # Sort tasks by dispatch time.
   global sorted_tasks
   sorted_tasks = sorted(tasks.values(), key=operator.attrgetter('dispatch'))
-
-  output_json('tasktracer_data.json', begin_time, end_time)
+  output_json('tasktracer_data.json', begin_time, end_time, process_start_min)
 
   print '\nDone! {} tasks has been written to tasktracer_data.json successfully.'.format(len(tasks))
 
